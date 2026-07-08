@@ -85,6 +85,7 @@ agent-harness run "say done" --trace .harness/runs/latest.jsonl
 agent-harness run "say done" --profile config/personal-harness.yaml
 agent-harness demo
 agent-harness web --trace trace.jsonl
+agent-harness smoke provider --profile config/local-openai.yaml --trace .harness/runs/provider-smoke.jsonl
 agent-harness hitl list --store .harness/hitl/requests.json
 agent-harness hitl approve <request_id> --store .harness/hitl/requests.json
 agent-harness hitl approve <request_id> --continue --store .harness/hitl/requests.json
@@ -123,6 +124,15 @@ llm:
 If no key is configured, `agent-harness run --config <file>` exits safely with `API key not configured`.
 
 Use `--profile config/personal-harness.yaml` to overlay project-specific workspace, permission, model, and memory settings on top of the base config.
+
+After configuring an OpenAI-compatible profile and storing the key through the credential
+manager, run a real provider smoke check:
+
+```bash
+agent-harness smoke provider --profile config/local-openai.yaml --trace .harness/runs/provider-smoke.jsonl
+```
+
+The provider smoke check refuses `mock` profiles, confirms that credentials are configured without printing them, runs one guarded read-only goal, and verifies that a trace file was written.
 
 Model responses must be exactly one JSON object:
 

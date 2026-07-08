@@ -2,8 +2,10 @@ import argparse
 
 from agent_harness.cli.credentials import add_credentials_parser
 from agent_harness.cli.demo import add_demo_parser
+from agent_harness.cli.doctor import add_doctor_parser
 from agent_harness.cli.hitl import add_hitl_parser
 from agent_harness.cli.run import add_run_parser
+from agent_harness.cli.smoke import add_smoke_parser
 from agent_harness.cli.web import add_web_parser
 
 
@@ -16,6 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     add_web_parser(subparsers)
     add_hitl_parser(subparsers)
     add_credentials_parser(subparsers)
+    add_doctor_parser(subparsers)
+    add_smoke_parser(subparsers)
     return parser
 
 

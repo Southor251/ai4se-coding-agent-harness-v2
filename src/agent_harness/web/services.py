@@ -53,18 +53,57 @@ def list_trace_runs(trace_dir: str = DEFAULT_TRACE_DIR) -> list[dict]:
 def list_hitl_requests(store_path: str = DEFAULT_HITL_STORE_PATH) -> list[dict]:
     rows = []
     for request in HITLStore(store_path).load():
-        rows.append(
-            {
-                "id": request.id,
-                "status": request.status,
-                "tool": request.action.tool or "",
-                "reason": request.reason,
-                "created_at": request.created_at,
-                "resolved_at": request.resolved_at or "",
-                "decided_by": request.decided_by or "",
-            }
-        )
+        rows.append(_hitl_request_row(request))
     return rows
+
+
+def hitl_summary(store_path: str = DEFAULT_HITL_STORE_PATH) -> dict:
+    requests = HITLStore(store_path).load()
+    return {
+        "total": len(requests),
+        "pending": sum(1 for request in requests if request.status == "pending"),
+        "approved": sum(1 for request in requests if request.status == "approved"),
+        "denied": sum(1 for request in requests if request.status == "denied"),
+        "timed_out": sum(1 for request in requests if request.status == "timed_out"),
+    }
+
+
+def runtime_overview(
+    config_path: str = DEFAULT_CONFIG_PATH,
+    profile_path: str | None = DEFAULT_PROFILE_PATH,
+    trace_path: str = DEFAULT_TRACE_PATH,
+    hitl_store_path: str = DEFAULT_HITL_STORE_PATH,
+) -> dict:
+    """Return UI-safe runtime metadata for the Web theater sidebar.
+
+    The overview intentionally reports only credential-independent configuration and
+    filesystem state. It never reads or displays API key material.
+    """
+    config = load_config_with_profile(config_path, profile_path or None)
+    trace = Path(trace_path)
+    hitl = hitl_summary(hitl_store_path)
+    harness = build_harness(config, trace_path=None, hitl_store_path=None)
+    tool_names = sorted(tool.name for tool in harness.tools.list()) if harness.tools else []
+    return {
+        "config_path": str(config_path),
+        "profile_path": str(profile_path or ""),
+        "workspace_root": config.workspace_root,
+        "provider": str(config.llm.get("provider", "mock")),
+        "model": str(config.llm.get("model", "")),
+        "base_url_configured": bool(config.llm.get("base_url")),
+        "memory_enabled": bool(config.memory.get("enabled", False)),
+        "permission_rules": len(config.permission.get("rules", [])),
+        "trace_path": str(trace_path),
+        "trace_exists": trace.exists(),
+        "trace_summary": trace_summary(trace_path) if trace.exists() else summarize_trace([]),
+        "hitl_store_path": str(hitl_store_path),
+        "hitl": hitl,
+        "tools": {
+            "count": len(tool_names),
+            "names": tool_names,
+            "run_shell_registered": "run_shell" in tool_names,
+        },
+    }
 
 
 def approve_hitl_request(
@@ -100,3 +139,15 @@ def deny_hitl_request(request_id: str, store_path: str = DEFAULT_HITL_STORE_PATH
     if denied is None:
         raise ValueError(f"HITL request not found: {request_id}")
     return denied
+
+
+def _hitl_request_row(request: HITLRequest) -> dict:
+    return {
+        "id": request.id,
+        "status": request.status,
+        "tool": request.action.tool or "",
+        "reason": request.reason,
+        "created_at": request.created_at,
+        "resolved_at": request.resolved_at or "",
+        "decided_by": request.decided_by or "",
+    }

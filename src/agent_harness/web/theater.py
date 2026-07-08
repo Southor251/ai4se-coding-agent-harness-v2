@@ -10,12 +10,16 @@ def load_trace_for_display(path: str | Path) -> list[dict]:
     for record in TraceStore.load(path):
         action = record.get("llm_action") or {}
         feedback = record.get("feedback") or {}
+        tool_result = record.get("tool_result") or {}
         rows.append(
             {
                 "step": record.get("step"),
                 "llm": record.get("llm_text", ""),
                 "action": action.get("type", ""),
+                "tool": action.get("tool") or "",
                 "permission": record.get("permission_verdict", ""),
+                "hitl_status": record.get("hitl_status") or "",
+                "tool_success": tool_result.get("success", "") if isinstance(tool_result, dict) else "",
                 "feedback": feedback.get("category", "") if isinstance(feedback, dict) else "",
             }
         )
@@ -30,6 +34,7 @@ def summarize_trace(records: list[Any]) -> dict:
             1 for record in normalized if (record.get("llm_action") or {}).get("type") == "call_tool"
         ),
         "denials": sum(1 for record in normalized if record.get("permission_verdict") == "deny"),
+        "hitl_pending": sum(1 for record in normalized if record.get("hitl_status") == "pending"),
         "feedback_events": sum(1 for record in normalized if record.get("feedback")),
     }
 
@@ -54,6 +59,7 @@ def main(path: str = ".harness/runs/latest.jsonl"):
         list_hitl_requests,
         list_trace_runs,
         run_task,
+        runtime_overview,
     )
 
     st.title("Agent Loop Theater")
@@ -69,6 +75,24 @@ def main(path: str = ".harness/runs/latest.jsonl"):
             if selected_trace:
                 trace_path = selected_trace["path"]
         hitl_store_path = st.text_input("HITL store", value=DEFAULT_HITL_STORE_PATH)
+
+        st.subheader("Runtime status")
+        overview = runtime_overview(
+            config_path=config_path,
+            profile_path=profile_path or None,
+            trace_path=trace_path,
+            hitl_store_path=hitl_store_path,
+        )
+        status_cols = st.columns(2)
+        status_cols[0].metric("Provider", overview["provider"])
+        status_cols[1].metric("Pending HITL", overview["hitl"]["pending"])
+        st.caption(
+            f"Workspace: `{overview['workspace_root']}` · Trace exists: {overview['trace_exists']} · "
+            f"run_shell registered: {overview['tools']['run_shell_registered']}"
+        )
+        with st.expander("Runtime details"):
+            st.write(overview)
+
         if st.button("Run"):
             result = run_task(
                 goal,
@@ -102,7 +126,13 @@ def main(path: str = ".harness/runs/latest.jsonl"):
         st.subheader(f"Step {row['step']}")
         st.markdown(f"**LLM decision:** {row['llm']}")
         st.markdown(f"**Action:** {row['action']}")
+        if row["tool"]:
+            st.markdown(f"**Tool:** {row['tool']}")
         st.markdown(f"**Permission:** {row['permission']}")
+        if row["hitl_status"]:
+            st.markdown(f"**HITL:** {row['hitl_status']}")
+        if row["tool_success"] != "":
+            st.markdown(f"**Tool success:** {row['tool_success']}")
         if row["feedback"]:
             st.markdown(f"**Feedback:** {row['feedback']}")
 

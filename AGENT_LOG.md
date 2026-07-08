@@ -159,6 +159,11 @@ This log records the recovery work performed in the sandbox copy of the project.
 - current final-status slice
   - Added `docs/final_status.md` summarizing implemented capabilities, latest verification, remaining user-specific setup, and safety boundaries.
 
+- next provider-smoke slice
+  - Added `agent-harness smoke provider` as the real API readiness helper.
+  - The command rejects mock profiles, checks OpenAI-compatible model/base_url/credential readiness, runs one guarded read-only goal, and verifies that a JSONL trace was written.
+  - Added tests for mock rejection, missing credential preflight failure, successful runner injection, trace verification, CLI report output, and secret redaction.
+
 ## Verification
 
 Latest verification in the sandbox:

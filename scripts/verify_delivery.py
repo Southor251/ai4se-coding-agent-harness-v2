@@ -15,6 +15,17 @@ def build_checks() -> list[Check]:
         Check("pytest", [sys.executable, "-m", "pytest", "-q"]),
         Check("ruff", [sys.executable, "-m", "ruff", "check", "src/", "tests/", "demo/"]),
         Check(
+            "doctor",
+            [
+                sys.executable,
+                "-m",
+                "agent_harness.cli.main",
+                "doctor",
+                "--profile",
+                "config/personal-harness.yaml",
+            ],
+        ),
+        Check(
             "cli_run",
             [
                 sys.executable,
@@ -38,6 +49,14 @@ def build_checks() -> list[Check]:
                 "list",
                 "--store",
                 ".harness/hitl/requests.json",
+            ],
+        ),
+        Check(
+            "hitl_write_demo",
+            [
+                sys.executable,
+                "-m",
+                "demo.demo_hitl_write",
             ],
         ),
         Check(

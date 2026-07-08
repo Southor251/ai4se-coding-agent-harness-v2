@@ -1,10 +1,16 @@
-from agent_harness.demos import run_feedback_demo, run_guardrail_demo, run_scope_demo
+from agent_harness.demos import (
+    run_feedback_demo,
+    run_guardrail_demo,
+    run_hitl_write_demo,
+    run_scope_demo,
+)
 
 
 def run_all_demos() -> dict[str, dict]:
     return {
         "guardrail": run_guardrail_demo(),
         "feedback": run_feedback_demo(),
+        "hitl_write": run_hitl_write_demo(),
         "scope": run_scope_demo(),
     }
 

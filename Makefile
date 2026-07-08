@@ -17,4 +17,5 @@ web:
 demo:
 	python -m demo.demo_guardrail
 	python -m demo.demo_feedback
+	python -m demo.demo_hitl_write
 	python -m demo.demo_scope
