@@ -34,3 +34,11 @@ def test_credentials_clear_removes_secret():
 
     assert manager.get() is None
     assert manager.show_status() == "not configured"
+
+def test_credentials_prefers_runtime_environment_over_stored_value(monkeypatch):
+    backend = FakeBackend()
+    manager = CredentialManager(backend=backend)
+    manager.update("stored-token")
+    monkeypatch.setenv("OPENAI_API_KEY", "runtime-token")
+
+    assert manager.get() == "runtime-token"

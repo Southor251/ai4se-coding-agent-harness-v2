@@ -1,22 +1,20 @@
-# Reflection
+# REFLECTION.md 写作说明（须由学生本人完成）
 
-This file is a scaffold. The final reflection should be written by the student in their own words.
+> 本文件是课程要求的 1500–2500 字反思报告。以下是写作提示与自检清单，不是可提交的反思正文。提交前请由学生以自己的实际经历替换本文件全部内容；不得把 AI 生成文本当作本人经历提交。
 
-## Suggested Points to Cover
+## 建议结构
 
-- What the harness is intended to do.
-- Which parts are implemented and tested.
-- Why deterministic `MockLLM` tests matter for this project.
-- How scope, permission, HITL, feedback, and trace mechanisms interact.
-- What limits remain in the current milestone.
-- What should be improved before turning it into a personal harness.
+1. **项目问题与取舍**：为什么选择 Coding Agent Harness，目标用户是谁，为什么将治理护栏与反馈闭环作为主要贡献。
+2. **Superpowers 工作流体验**：brainstorming、planning、TDD、subagent/worktree、评审分别在哪些地方帮助了你，哪些地方显得形式化或带来成本。
+3. **一项真实的规约修订案例**：说明冷启动或代码审阅暴露的歧义、你如何判断问题来源、SPEC/PLAN 前后改了什么。
+4. **TDD 与验证证据**：描述一次“先红后绿”的具体任务，以及 mock LLM 为什么让治理/反馈可以脱离真实模型复现。
+5. **安全、凭据与分发**：说明 key 存储、`.env` 风险、Docker/WebUI 与 CI 让你补足了什么工程考虑。
+6. **批判与下一步**：本项目仍有哪些限制，例如 harness guardrail 不是 OS 沙箱、真实模型可靠性和部署运维仍需补强；若重做会改变什么。
 
-## Draft Outline
+## 提交前自检
 
-1. Project goal and motivation.
-2. Architecture summary.
-3. Main implementation challenges.
-4. Testing and verification approach.
-5. Safety and ethics considerations.
-6. Future improvement plan.
-
+- [ ] 正文为本人独立撰写，长度在 1500–2500 字。
+- [ ] 至少给出一个自己的 SPEC/PLAN 误解或修订案例。
+- [ ] 没有把未实际发生的对话、测试、部署或评审写成既成事实。
+- [ ] 说明 AI 仅用于允许的辅助工作，并遵守课程的学术规范声明。
+- [ ] 删除本说明和所有提示后再提交。

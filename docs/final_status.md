@@ -1,105 +1,27 @@
 # Final Project Status
 
-## Status
+## Verified repository evidence — 2026-08-14
 
-This repository is a local, testable Coding Agent Harness for the AI4SE final project. The current delivery target is no longer a broad IDE clone; it is a governed harness kernel with clear user-facing entry points, deterministic mechanism demos, and a documented path for real OpenAI-compatible provider setup.
+From this checkout, `python scripts/verify_delivery.py` completed successfully with `175 passed`, Ruff reporting `All checks passed!`, a mock CLI run, a HITL-list smoke check, and the submission-scope secret/placeholder scan. GitHub Actions for the latest submission branch commit passed both `unit-test` and `container-build`; the container job builds the image, starts the Streamlit WebUI, and performs an HTTP probe on port 8501.
 
-The safe default runtime uses `mock`. Real API-backed execution is opt-in through a local profile plus the credential manager; API keys must not be committed or written into YAML.
+The three deterministic mechanism demonstrations remain under `demo/`: governance denial, feedback healing, and scope denial. They use `MockLLM` and do not require network access or a real credential.
 
-## Final Verification Command
+## Submission artifacts controlled by the repository
 
-Run this before submission and record the observed output in `AGENT_LOG.md`:
+- `Dockerfile` starts the Streamlit WebUI on port 8501.
+- Root `requirements.txt` installs this project for Streamlit Community Cloud, allowing the entrypoint `src/agent_harness/web/theater.py` to import the `src` package layout.
+- GitHub Actions has `unit-test` and `container-build`; `.gitlab-ci.yml` retains the course-required `unit-test` job.
+- `submission.jsonc` contains the supplied student identity and public GitHub repository URL. It truthfully remains `is_deployed: false` until an actual public WebUI URL exists.
+- Credentials use hidden input and safe precedence. User-visible provider, credential-backend, and runtime-assembly failures are redacted. The scanner produces Windows-console-safe output.
 
-```bash
-python scripts/verify_delivery.py
-```
+## Remaining evidence gates not representable by repository edits
 
-Expected checks:
+1. A real public HTTPS WebUI URL, verified from a non-admin browser, then recorded in `submission.jsonc` with `is_deployed: true`.
+2. A genuine cold-start exercise performed by a different agent type or independent session, with original questions, minimal change, diff, and verification recorded in `SPEC_PROCESS.md`.
+3. The student's own 1500–2500 word/character reflection in `REFLECTION.md`.
 
-- full `pytest` suite
-- `ruff` over `src/`, `tests/`, and `demo/`
-- `agent-harness doctor --profile config/personal-harness.yaml`
-- safe CLI run smoke
-- HITL list smoke
-- deterministic HITL write demo
-- high-confidence secret/marker scan
+The exact deployment and cold-start handoff is in `docs/final_submission_external_gates.md`. None of these gates should be replaced with a repository URL, a mocked screenshot, or an invented transcript.
 
-Optional distribution check:
+## Safety boundary
 
-```bash
-docker build -t ai4se-agent-harness .
-```
-
-## Implemented Capabilities
-
-### Harness Kernel
-
-- Self-owned agent loop: context assembly, LLM call, JSON action parsing, governance, tool dispatch, feedback injection, trace recording, and halt handling.
-- Mockable LLM abstraction with deterministic `MockLLM`.
-- Strict JSON action protocol with `call_tool`, `take_note`, `done.answer`, and observable invalid-action recovery.
-- OpenAI-compatible provider configuration for `model`, `base_url`, and `temperature`.
-
-### Tools
-
-Default governed runtime tools:
-
-- `read_file`
-- `read_many`
-- `list_files`
-- `search_text`
-- `git_diff`
-- `write_file`
-- `replace_once`
-- `edit_file`
-- `run_test`
-
-`run_shell` is intentionally not registered in the default governed runtime.
-
-### Governance and HITL
-
-- `ScopeGuard` checks workspace boundaries and sensitive paths.
-- Permission rules support `allow`, `ask`, and `deny`.
-- Ask-mode actions create persistent HITL requests in `.harness/hitl/requests.json`.
-- CLI and Web support list, approve, deny, and approve-plus-continue flows.
-- Deterministic HITL write demo proves that a write action is not executed before approval and still passes scope enforcement after approval.
-
-### Feedback and Trace
-
-- Feedback sensor classifies tool results and injects structured feedback into the loop.
-- JSONL trace store records step-level execution details.
-- Web Theater can select trace history, summarize runs, inspect steps, and operate HITL requests.
-
-### User-Facing Commands
-
-Core commands:
-
-```bash
-agent-harness doctor --profile config/personal-harness.yaml
-agent-harness run "say done" --profile config/personal-harness.yaml
-agent-harness smoke provider --profile config/local-openai.yaml
-agent-harness hitl list --store .harness/hitl/requests.json
-agent-harness hitl approve <request_id> --continue --profile config/personal-harness.yaml
-agent-harness demo
-streamlit run src/agent_harness/web/theater.py
-```
-
-### Distribution
-
-- Editable Python package install through `pyproject.toml`.
-- Docker build path through `Dockerfile`.
-- GitHub Actions runs unit/lint checks and Docker build smoke.
-
-## User-Specific Setup Still Required
-
-Before using a real provider:
-
-1. Create a local profile such as `config/local-openai.yaml`.
-2. Set `llm.provider: openai`.
-3. Set the desired `model` and `base_url`.
-4. Store the key with `agent-harness credentials update`; do not write it into YAML or Git.
-5. Run `agent-harness doctor --profile config/local-openai.yaml`.
-6. Run `agent-harness smoke provider --profile config/local-openai.yaml --trace .harness/runs/provider-smoke.jsonl`.
-
-## Safety Boundary
-
-This project provides harness-level governance, not an operating-system sandbox. It should be run against a chosen workspace directory with conservative permission rules. The default runtime intentionally omits shell execution. Real projects that need shell access should add explicit, narrow permission rules and preferably run the harness inside an external sandbox such as a container or VM.
+This project supplies harness-level controls, not an operating-system sandbox. Run real-provider tasks only in a deliberately selected workspace with conservative permission rules. The default runtime omits `run_shell`.

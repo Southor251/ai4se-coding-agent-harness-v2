@@ -1,4 +1,4 @@
-from scripts.secret_scan import scan_text
+from scripts.secret_scan import DEFAULT_PATHS, Finding, format_finding, scan_text
 
 
 def test_secret_scan_allows_benign_key_documentation():
@@ -19,3 +19,16 @@ def test_secret_scan_flags_todo_markers():
 
     assert findings
     assert findings[0].kind == "todo_marker"
+
+def test_format_finding_is_ascii_safe_for_windows_console():
+    finding = Finding(path="README.md", kind="todo_marker", line_number=1, line="含中文的占位标记")
+
+    rendered = format_finding(finding)
+
+    assert rendered.isascii()
+    assert "README.md:1:todo_marker:" in rendered
+
+def test_default_scan_covers_release_configuration_and_submission_metadata():
+    required = {"Dockerfile", "config", ".github", ".gitlab-ci.yml", "submission.jsonc", "SPEC.md"}
+
+    assert required.issubset(DEFAULT_PATHS)

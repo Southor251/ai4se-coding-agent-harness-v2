@@ -71,3 +71,8 @@ Latest observed results:
 - `All checks passed!`
 - CLI smoke for `run` and `hitl list` passed.
 - Secret and marker scan produced only expected API-key documentation and fake test-token references.
+## Submission-readiness integrity note — 2026-08-14
+
+A normal local verification pass was re-established after discovering that the repository virtual environment had an editable installation pointing at an older checkout. The environment was rebound to this repository before collecting the current `169 passed` evidence. This is local implementation evidence only.
+
+The required cold-start exercise remains incomplete until a different agent type/session is given only `SPEC.md` and `PLAN.md`, implements one or two tasks without the original design conversation, and its questions and resulting document revisions are recorded here. No such exercise is claimed as completed by this note.

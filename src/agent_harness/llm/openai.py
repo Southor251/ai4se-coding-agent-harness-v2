@@ -14,7 +14,7 @@ class OpenAILLM(LLMInterface):
         temperature: float = 0.7,
         client=None,
     ):
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
+        self.api_key = os.environ.get("OPENAI_API_KEY", "") if api_key is None else api_key
         self.model = model
         self.base_url = base_url
         self.temperature = temperature
@@ -46,8 +46,11 @@ class OpenAILLM(LLMInterface):
             text = response.choices[0].message.content or ""
             action = parse_agent_action(text)
             return LLMResponse(text=text, action=action)
-        except Exception as e:
-            return LLMResponse(text=f"API error: {e}", action=AgentAction(type="done"))
+        except Exception:
+            return LLMResponse(
+                text="API request failed; inspect provider configuration and logs securely",
+                action=AgentAction(type="done"),
+            )
 
 
 def _format_tool_for_message(tool: dict) -> str:

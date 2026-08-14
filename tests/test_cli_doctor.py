@@ -112,3 +112,24 @@ def test_doctor_cli_command_prints_report(tmp_path, monkeypatch, capsys):
     assert exit_code == 0
     assert "agent-harness doctor" in captured.out
     assert "result=ok" in captured.out
+
+
+def test_doctor_does_not_expose_credential_exception_details(tmp_path, monkeypatch):
+    class FailingCredentialManager:
+        def get(self):
+            raise RuntimeError("credential backend rejected secret-token")
+
+    _write_base_files(tmp_path)
+    profile = _write_openai_profile(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    report = run_doctor(
+        config_path="config/agent-harness.yaml",
+        profile_path=str(profile),
+        credential_manager=FailingCredentialManager(),
+    )
+
+    rendered = report.render()
+    assert not report.ok
+    assert "lookup failed; inspect secure local logs" in rendered
+    assert "secret-token" not in rendered
