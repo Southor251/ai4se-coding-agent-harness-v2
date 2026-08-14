@@ -44,6 +44,12 @@ def _to_dict(record: Any) -> dict:
         return asdict(record)
     return record
 
+def _select_trace_row(st: Any, rows: list[dict]) -> dict:
+    if len(rows) == 1:
+        return rows[0]
+    selected = st.slider("Step", 1, len(rows), 1)
+    return rows[selected - 1]
+
 
 def main(path: str = ".harness/runs/latest.jsonl"):
     import streamlit as st
@@ -121,8 +127,7 @@ def main(path: str = ".harness/runs/latest.jsonl"):
     else:
         summary = summarize_trace(TraceStore.load(trace_path))
         st.write(summary)
-        selected = st.slider("Step", 1, len(rows), 1)
-        row = rows[selected - 1]
+        row = _select_trace_row(st, rows)
         st.subheader(f"Step {row['step']}")
         st.markdown(f"**LLM decision:** {row['llm']}")
         st.markdown(f"**Action:** {row['action']}")
