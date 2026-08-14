@@ -12,4 +12,3 @@
   // 部署或发布链接，上一项如果是 false 此处就是 release 链接，否则就是 deploy 链接
   "deploy_release_url": "https://github.com/Southor251/ai4se-coding-agent-harness-v2"
 }
-

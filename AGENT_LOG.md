@@ -194,3 +194,19 @@ Observed result:
 - Added Docker WebUI runtime smoke coverage and a submission-scope secret/placeholder scanner; current local verification reports `175 passed` and Ruff clean.
 - Added real `submission.jsonc` identity fields for student `王艺衡` (`251220127`) and the public GitHub repository URL.
 - Prepared Streamlit Community Cloud deployment with an editable `requirements.txt` install plus documented public-URL and cold-start evidence gates. Browser inspection found no authenticated Streamlit session, so no deployment, OAuth authorization, or public URL is claimed.
+
+## Submission-readiness validation — 2026-08-14
+
+- Rebound the local editable installation after it was found to import an older checkout instead of this repository.
+- Added a Docker WebUI distribution contract and a GitHub Actions container-build job.
+- Added safety regressions for explicit empty credentials, provider-error redaction, and Windows console-safe scanner output.
+- Fresh local verification after credential/CI/scanner hardening: `175 passed`; Ruff, mock CLI, HITL list, and expanded secret/placeholder scan passed.
+- Docker Desktop was not running locally, so container start and external deployment are not claimed as verified.
+- Remaining owner gates: real public deployment URL, real submission identity values, student-authored reflection, and different-agent cold-start evidence.
+
+## Final submission closure preparation — 2026-08-14
+
+- Added `requirements.txt` with an editable project install so Streamlit Community Cloud can run the `src/agent_harness/web/theater.py` entrypoint from a clean cloud environment.
+- Added `docs/final_submission_external_gates.md` with the exact Streamlit Community Cloud deployment inputs, non-admin URL acceptance test, and an honest independent-agent cold-start protocol.
+- Updated README and final status to distinguish verified repository evidence from the still-unperformed public deployment and heterogeneous cold-start exercise.
+- Checked Streamlit Community Cloud in a browser: no authenticated session was available, so no deployment, OAuth authorization, or public URL is claimed.

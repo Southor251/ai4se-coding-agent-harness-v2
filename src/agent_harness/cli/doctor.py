@@ -159,4 +159,3 @@ def _doctor(args) -> int:
     )
     print(report.render())
     return 0 if report.ok else 1
-

@@ -1,38 +1,26 @@
 # Final Project Status
 
-## Local release evidence — 2026-08-14
+## Verified repository evidence — 2026-08-14
 
-The repository has a locally verified, deterministic Coding Agent Harness kernel. The latest normal verification ran from this checkout after re-binding the editable installation to `C:\Users\hp\Desktop\ai4se-coding-agent-harness\src`:
+From this checkout, `python scripts/verify_delivery.py` completed successfully with `175 passed`, Ruff reporting `All checks passed!`, a mock CLI run, a HITL-list smoke check, and the submission-scope secret/placeholder scan. GitHub Actions for the latest submission branch commit passed both `unit-test` and `container-build`; the container job builds the image, starts the Streamlit WebUI, and performs an HTTP probe on port 8501.
 
-```powershell
-.\.venv\Scripts\python.exe scripts\verify_delivery.py
-```
+The three deterministic mechanism demonstrations remain under `demo/`: governance denial, feedback healing, and scope denial. They use `MockLLM` and do not require network access or a real credential.
 
-Observed result:
+## Submission artifacts controlled by the repository
 
-- `175 passed`
-- Ruff: `All checks passed!`
-- Mock CLI run: passed
-- HITL list: passed
-- Secret and placeholder scan: passed
+- `Dockerfile` starts the Streamlit WebUI on port 8501.
+- Root `requirements.txt` installs this project for Streamlit Community Cloud, allowing the entrypoint `src/agent_harness/web/theater.py` to import the `src` package layout.
+- GitHub Actions has `unit-test` and `container-build`; `.gitlab-ci.yml` retains the course-required `unit-test` job.
+- `submission.jsonc` contains the supplied student identity and public GitHub repository URL. It truthfully remains `is_deployed: false` until an actual public WebUI URL exists.
+- Credentials use hidden input and safe precedence. User-visible provider, credential-backend, and runtime-assembly failures are redacted. The scanner produces Windows-console-safe output.
 
-The three deterministic mechanism demonstrations also remain available under `demo/`: guardrail denial, feedback healing, and scope denial. They use `MockLLM` and do not need a network connection or a real credential.
+## Remaining evidence gates not representable by repository edits
 
-## Delivery artifacts now aligned
+1. A real public HTTPS WebUI URL, verified from a non-admin browser, then recorded in `submission.jsonc` with `is_deployed: true`.
+2. A genuine cold-start exercise performed by a different agent type or independent session, with original questions, minimal change, diff, and verification recorded in `SPEC_PROCESS.md`.
+3. The student's own 1500–2500 word/character reflection in `REFLECTION.md`.
 
-- `Dockerfile` exposes port 8501 and starts the Streamlit WebUI.
-- GitHub Actions has `unit-test` and `container-build` jobs; `.gitlab-ci.yml` retains the required `unit-test` job.
-- `credentials update` uses hidden input; `credentials clear` requires confirmation by default. Non-empty runtime `OPENAI_API_KEY` is supported for deployment secret injection, while an explicitly empty adapter key does not fall back to the environment.\n- Provider, credential-backend, and runtime-assembly errors shown to users are redacted rather than emitted verbatim.
-- The secret scanner prints non-ASCII findings safely on Windows consoles.
-
-## External submission gates still requiring owner action
-
-These are course requirements, not implementation claims. They are intentionally not fabricated in this repository:
-
-1. A real public HTTPS URL for the deployed WebUI, plus a verified latest remote CI pass.
-2. The student's own 1500–2500 word/character reflection in `REFLECTION.md`.
-3. Real identity fields and the actual deployment/release URL in `submission.jsonc`.
-4. The course-required cold-start exercise with a different agent/session, documented honestly in `SPEC_PROCESS.md`.
+The exact deployment and cold-start handoff is in `docs/final_submission_external_gates.md`. None of these gates should be replaced with a repository URL, a mocked screenshot, or an invented transcript.
 
 ## Safety boundary
 
