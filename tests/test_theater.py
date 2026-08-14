@@ -1,7 +1,7 @@
 from agent_harness.models import AgentAction, TraceRecord
 from agent_harness.models import Feedback, ToolResult
 from agent_harness.trace.store import TraceStore
-from agent_harness.web.theater import load_trace_for_display, summarize_trace
+from agent_harness.web.theater import _select_trace_row, load_trace_for_display, summarize_trace
 
 
 def test_load_trace_for_display(tmp_path):
@@ -111,3 +111,13 @@ def test_summarize_trace_accepts_dataclass_records():
     assert summary["steps"] == 1
     assert summary["tool_calls"] == 1
     assert summary["feedback_events"] == 1
+
+
+def test_select_trace_row_uses_no_slider_for_single_row():
+    class SliderMustNotRun:
+        def slider(self, *args, **kwargs):
+            raise AssertionError("slider must not be called for a single trace row")
+
+    row = {"step": 1, "llm": "done"}
+
+    assert _select_trace_row(SliderMustNotRun(), [row]) == row
