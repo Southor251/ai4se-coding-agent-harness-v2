@@ -8,7 +8,7 @@
   // 仓库托管链接
   "repo_url": "https://github.com/Southor251/ai4se-coding-agent-harness-v2",
   // 是否部署
-  "is_deployed": false,
+  "is_deployed": true,
   // 部署或发布链接，上一项如果是 false 此处就是 release 链接，否则就是 deploy 链接
-  "deploy_release_url": "https://github.com/Southor251/ai4se-coding-agent-harness-v2/releases/tag/v1.0.0-course-submission"
+  "deploy_release_url": "https://southor251-ai4se-harness.streamlit.app/"
 }

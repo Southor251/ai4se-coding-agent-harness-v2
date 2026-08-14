@@ -216,3 +216,10 @@ Observed result:
 - Merged the submission-readiness PR into main as 99cfa9e after unit-test and Streamlit container startup smoke checks passed.
 - Created and verified public GitHub Release v1.0.0-course-submission at https://github.com/Southor251/ai4se-coding-agent-harness-v2/releases/tag/v1.0.0-course-submission; it returns HTTP 200 and targets 99cfa9e.
 - Updated submission.jsonc to use that actual Release URL while retaining is_deployed: false. This stable source snapshot does not claim to satisfy the separate public-WebUI deployment requirement.
+
+## Public WebUI deployment verification — 2026-08-14
+
+- Verified public HTTPS application at https://southor251-ai4se-harness.streamlit.app/ from an unauthenticated browser.
+- The app loaded Agent Loop Theater and mock runtime controls. A WebUI `say_done` run returned answer done, halt_reason done, and a visible trace.
+- The first public run exposed a single-trace slider boundary exception. Added a failing regression test, applied the minimal no-slider-for-one-row fix, verified 186 local tests, merged PR #3, and reran the public Mock smoke successfully.
+- Updated submission.jsonc to set is_deployed true and use the actual public deployment URL.

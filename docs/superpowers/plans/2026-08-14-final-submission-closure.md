@@ -26,7 +26,7 @@
 
 - [x] Verify JSONC identity fields with a comment-line-aware parser.
 - [x] Run `python scripts/secret_scan.py submission.jsonc`; expected exit code `0`.
-- [x] Run `.\\.venv\\Scripts\\python.exe scripts\\verify_delivery.py`; expected `185 passed`, `All checks passed!`, exit code `0`.
+- [x] Run `.\\.venv\\Scripts\\python.exe scripts\\verify_delivery.py`; expected `186 passed`, `All checks passed!`, exit code `0`.
 
 ### Task 2: Publish the reviewed repository state
 
@@ -44,7 +44,7 @@
 
 - [x] Create annotated release v1.0.0-course-submission from verified main commit 99cfa9e.
 - [x] Verify the release URL returns HTTP 200 and refers to commit 99cfa9e.
-- [x] Record the verified Release URL in submission.jsonc while retaining truthful is_deployed: false; this does not replace the separate public-WebUI requirement.
+- [x] Record the verified Release URL first, then replace it with the verified public WebUI URL and truthful is_deployed: true after independent browser validation.
 
 ### Task 4: Prepare the two non-repository evidence gates
 

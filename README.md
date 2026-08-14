@@ -31,7 +31,7 @@
 
 - 这是 harness 层的治理，不是操作系统级沙箱；真实项目仍应在受限工作区和最小权限环境运行。
 - 默认配置使用 `mock`。真实 OpenAI-compatible 模型需要用户在目标机器上自行安全配置 endpoint、model 与 key。
-- Dockerfile 与 CI 已配置为启动并 smoke-test WebUI；最新 GitHub Actions 已验证容器启动。公网部署使用 Streamlit Community Cloud 的准备配置已在仓库中，但实际公开 URL 必须在部署完成后如实写入 `submission.jsonc`。
+- Dockerfile 与 CI 已配置为启动并 smoke-test WebUI；项目已部署到 [Streamlit Community Cloud](https://southor251-ai4se-harness.streamlit.app/)。公开匿名浏览器验证了首页、Mock provider 与 `say_done` 单步 trace；其初始单条 trace slider 边界缺陷已在 PR #3 修复并重新验证。
 - `REFLECTION.md` 必须由学生本人完成。仓库中的说明仅提供题纲与自检标准，不是可提交的代写内容。
 
 ## 安装
@@ -80,7 +80,7 @@ key 不得写入源码、Git、日志、命令行历史或容器镜像。运行�
 
 ## Streamlit Community Cloud 部署
 
-仓库已包含面向 Streamlit Community Cloud 的 `requirements.txt`。使用拥有仓库管理员权限的 GitHub 账户登录 `https://share.streamlit.io` 后，创建应用并选择：仓库 `Southor251/ai4se-coding-agent-harness-v2`、分支 `main`、入口 `src/agent_harness/web/theater.py`，在 Advanced settings 选择 Python 3.12。默认 mock 配置无需真实 key；不要把真实 key 填入 Git 或平台配置。部署成功且从无登录窗口验证公开 HTTPS URL 后，才可将 `submission.jsonc` 的 `is_deployed` 改为 `true` 并写入该 URL。完整操作与冷启动记录模板见 `docs/final_submission_external_gates.md`。
+仓库已包含面向 Streamlit Community Cloud 的 `requirements.txt`。使用拥有仓库管理员权限的 GitHub 账户登录 `https://share.streamlit.io` 后，创建应用并选择：仓库 `Southor251/ai4se-coding-agent-harness-v2`、分支 `main`、入口 `src/agent_harness/web/theater.py`，在 Advanced settings 选择 Python 3.12。默认 mock 配置无需真实 key；不要把真实 key 填入 Git 或平台配置。当前公开地址为 `https://southor251-ai4se-harness.streamlit.app/`，已从无登录浏览器完成首页和 Mock run 验证；`submission.jsonc` 已如实标记为已部署。完整部署与冷启动记录模板见 `docs/final_submission_external_gates.md`。
 ## Docker 分发
 
 Docker 镜像默认启动 WebUI，而不是仅运行测试：
