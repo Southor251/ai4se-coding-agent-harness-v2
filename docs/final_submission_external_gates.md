@@ -1,9 +1,16 @@
 # 最终提交外部收口操作单
 
-本文件只记录需要真实外部操作才能完成的课程证据。它不把仓库链接、CI 绿灯或模拟运行伪装成部署或异构冷启动已经完成。
+本文件记录需要真实外部操作才能完成的课程证据。公网部署已完成并保留验证证据；异构冷启动仍不得由仓库链接、CI 绿灯或模拟记录替代。
 
 ## 1. 公网 WebUI 部署
 
+
+### 已完成的部署证据（2026-08-14）
+
+- 公开地址：https://southor251-ai4se-harness.streamlit.app/
+- 浏览器在无登录状态下加载了 Agent Loop Theater、mock Provider、Trace 与 HITL 区域。
+- 使用 WebUI 输入 `say_done` 并点击 Run，显示 `answer: done`、`halt_reason: done` 与单步 trace。
+- 首次验证暴露单条 trace 的 slider 边界错误；PR #3 增加回归测试后合并，重新验证页面显示 Step 1 且无 StreamlitAPIException。
 ### 已准备好的仓库条件
 
 - 仓库：`https://github.com/Southor251/ai4se-coding-agent-harness-v2`
@@ -62,7 +69,7 @@
 除 `REFLECTION.md` 外，在课程平台提交同一个仓库链接前，确认：
 
 1. `main` 是最新提交状态，且公开可访问；
-2. GitHub Release `v1.0.0-course-submission` 存在并指向最终 `main` 提交；
+2. GitHub Release `v1.0.0-course-submission` 存在并指向其已验证的源码快照；
 3. `submission.jsonc` 的姓名、学号、仓库 URL、部署状态和部署 URL 都真实；
 4. 最新 GitHub Actions 为 pass；
 5. 公网 WebUI URL 从无登录浏览器可打开；
