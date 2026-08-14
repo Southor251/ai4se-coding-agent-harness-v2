@@ -41,6 +41,34 @@ def test_openai_llm_no_key():
     assert "not configured" in result.text
 
 
+def test_openai_llm_explicit_empty_key_does_not_fall_back_to_environment(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "environment-key")
+
+    llm = OpenAILLM(api_key="")
+
+    assert llm.api_key == ""
+
+
+def test_openai_llm_does_not_expose_provider_exception_details():
+    class FailingClient:
+        class Chat:
+            class Completions:
+                def create(self, **kwargs):
+                    raise RuntimeError("provider rejected secret-token")
+
+            completions = Completions()
+
+        chat = Chat()
+
+    llm = OpenAILLM(api_key="test-key", client=FailingClient())
+
+    result = llm.call([], [])
+
+    assert result.action.type == "done"
+    assert result.text == "API request failed; inspect provider configuration and logs securely"
+    assert "secret-token" not in result.text
+
+
 class FakeOpenAIMessage:
     content = '{"type": "call_tool", "tool": "read_file", "args": {"path": "README.md"}}'
 

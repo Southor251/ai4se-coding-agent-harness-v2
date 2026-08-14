@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY pyproject.toml ./
 COPY src ./src
-COPY tests ./tests
-COPY demo ./demo
 COPY config ./config
 COPY README.md ./
 
-RUN python -m pip install --no-cache-dir -e ".[dev]"
+RUN python -m pip install --no-cache-dir .
 
-CMD ["python", "-m", "pytest", "-q"]
+EXPOSE 8501
+
+CMD ["streamlit", "run", "src/agent_harness/web/theater.py", "--server.address=0.0.0.0", "--server.port=8501"]

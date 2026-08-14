@@ -1,5 +1,9 @@
 name: tests
-on: [push]
+
+on:
+  push:
+  pull_request:
+
 jobs:
   unit-test:
     runs-on: ubuntu-latest
@@ -8,12 +12,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: make test
-      - run: make lint
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - run: python -m ruff check src/ tests/ demo/
 
-  docker-build:
+  container-build:
     runs-on: ubuntu-latest
+    needs: unit-test
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t ai4se-agent-harness .
+      - run: docker build --tag ai4se-agent-harness:ci .
+      - name: Smoke test Streamlit container
+        run: |
+          docker run --detach --name ai4se-agent-harness-ci --publish 8501:8501 ai4se-agent-harness:ci
+          trap 'docker logs ai4se-agent-harness-ci; docker rm --force ai4se-agent-harness-ci' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:8501; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1

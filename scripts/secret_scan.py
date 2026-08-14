@@ -8,12 +8,24 @@ DEFAULT_PATHS = [
     "src",
     "tests",
     "demo",
+    "scripts",
+    "config",
+    ".github",
     "README.md",
+    "SPEC.md",
     "PLAN.md",
     "SPEC_PROCESS.md",
     "AGENT_LOG.md",
+    "REFLECTION.md",
+    "Dockerfile",
+    ".dockerignore",
+    ".gitignore",
+    ".gitlab-ci.yml",
+    "Makefile",
+    "pyproject.toml",
+    "submission.jsonc",
     "docs/personal_setup.md",
-    "scripts",
+    "docs/final_status.md",
 ]
 
 IGNORED_FILES = {
@@ -34,6 +46,11 @@ class Finding:
     kind: str
     line_number: int
     line: str
+
+
+def format_finding(finding: Finding) -> str:
+    rendered = f"{finding.path}:{finding.line_number}:{finding.kind}:{finding.line}"
+    return rendered.encode("ascii", "backslashreplace").decode("ascii")
 
 
 def scan_text(path: str, text: str) -> list[Finding]:
@@ -69,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     findings = scan_paths(args.paths)
     for finding in findings:
-        print(f"{finding.path}:{finding.line_number}:{finding.kind}:{finding.line}")
+        print(format_finding(finding))
     return 1 if findings else 0
 
 

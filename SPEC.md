@@ -3,7 +3,7 @@
 > 项目：AI4SE 期末项目 · A 类
 > 版本：v2.0（范围收缩 + 三新机制 + 可测自愈 + Agent Loop Theater）
 > 日期：2026-07-07
-> 状态：待审阅
+> 状态：本地提交打磨已完成；公开部署、真实 submission 身份字段、本人反思与异构冷启动记录仍为外部收口项。
 > 变更摘要：v1.0 范围过大，v2.0 收缩为垂直切片；新增 PermissionPolicy / ScopeGuard / TraceStore 三机制；自愈闭环改为确定性可测；WebUI 改为 Agent Loop Theater 回放；插件系统保留；文件快照 / 跨会话记忆 / PyPI / LSP 移到未来工作
 
 ---
@@ -462,14 +462,15 @@ Coding 领域的四个核心机制映射：
 
 ```
 存储层级（优先级递减）：
-  1. Windows Credential Manager (keyring)  ← 首选
-  2. .env 文件（明文回退，加入 .gitignore）
+  1. 受部署平台保护的非空 OPENAI_API_KEY 运行时环境变量
+  2. Windows Credential Manager (keyring)  ← 本机交互式使用首选
+  3. .env 文件（明文回退，加入 .gitignore）
 
 生命周期：
-  录入：CLI 隐藏输入（getpass）→ 验证 → keyring.set_password
-  使用：keyring.get_password → 如果失败 → dotenv → 如果都失败 → 引导录入
-  更新：同录入流程
-  清除：keyring.delete_password + 删除 .env 中对应行
+  录入：`agent-harness credentials update` 使用 CLI 隐藏输入（getpass）→ keyring.set_password
+  使用：运行时环境变量 → keyring.get_password → .env → 未配置
+  更新：同录入流程；不得把 key 作为命令行参数传入
+  清除：`credentials clear` 默认需确认，或用 `--yes` 非交互确认；删除 keyring 与 .env 对应行
   查看：仅显示"状态：已配置 / 未配置"，不得回显明文
 ```
 
@@ -478,12 +479,12 @@ Coding 领域的四个核心机制映射：
 ```dockerfile
 FROM python:3.12-slim
 WORKDIR /app
-COPY pyproject.toml .
-RUN pip install .
-COPY src/ src/
+COPY pyproject.toml ./
+COPY src ./src
+COPY config ./config
+RUN python -m pip install --no-cache-dir .
 EXPOSE 8501
-ENTRYPOINT ["agent-harness"]
-CMD ["web"]
+CMD ["streamlit", "run", "src/agent_harness/web/theater.py", "--server.address=0.0.0.0", "--server.port=8501"]
 ```
 
 ```bash
@@ -494,10 +495,10 @@ docker run -p 8501:8501 -v agent-harness-data:/root/.agent-harness agent-harness
 ### 8.3 目标机 key 安全配置
 
 ```bash
-# Docker 中：首次启动 WebUI → 浏览器中录入 key → 存入容器内 keyring
-# 或通过环境变量传入：
-docker run -e OPENAI_API_KEY=sk-... -p 8501:8501 agent-harness
-# 环境变量方式 key 在进程列表中可见，仅供快速测试
+# WebUI 不提供浏览器内 key 录入功能；先在目标机安全配置 secret。
+# 本机 .env 为明文且必须被 Git 忽略；用 Docker 的 env-file 在运行时注入：
+docker run --env-file .env -p 8501:8501 agent-harness
+# 环境变量会对具有足够权限的本机进程可见，不能写入镜像层、Git 或命令历史。
 ```
 
 ---

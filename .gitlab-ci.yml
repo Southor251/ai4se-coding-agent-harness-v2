@@ -1,7 +1,11 @@
+stages:
+  - test
+
 unit-test:
+  stage: test
   script:
-    - pip install -e ".[dev]"
-    - make test
-    - make lint
+    - python -m pip install -e ".[dev]"
+    - python -m pytest -q
+    - python -m ruff check src/ tests/ demo/
   tags:
     - python

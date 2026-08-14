@@ -97,8 +97,8 @@ def _check_llm_config(config) -> list[DoctorCheck]:
 def _check_credential(manager) -> DoctorCheck:
     try:
         configured = bool(manager.get())
-    except Exception as exc:
-        return DoctorCheck("credential", "fail", f"lookup failed: {exc}")
+    except Exception:
+        return DoctorCheck("credential", "fail", "lookup failed; inspect secure local logs")
     if configured:
         return DoctorCheck("credential", "ok", "configured; secret not displayed")
     return DoctorCheck("credential", "warn", "not configured")
@@ -159,3 +159,4 @@ def _doctor(args) -> int:
     )
     print(report.render())
     return 0 if report.ok else 1
+

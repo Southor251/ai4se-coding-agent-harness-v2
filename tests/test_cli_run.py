@@ -22,6 +22,10 @@ def test_run_command_executes_goal(capsys):
 
 def test_run_command_with_openai_config_without_key_exits_safely(tmp_path, capsys, monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "")
+    monkeypatch.setattr(
+        "agent_harness.runtime.factory.CredentialManager",
+        lambda: type("EmptyCredentialManager", (), {"get": lambda self: None})(),
+    )
     config_path = tmp_path / "agent-harness.yaml"
     config_path.write_text(
         "\n".join(

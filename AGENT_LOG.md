@@ -187,3 +187,10 @@ Observed result:
 - Improve the Streamlit theater styling and replay ergonomics.
 - Add real provider configuration and model selection once target provider/version requirements are fixed.
 - Expand personal-harness features such as persistent project memory, patch planning, and richer tool permissions.
+
+## Submission-readiness and closure batch — 2026-08-14
+
+- Hardened credential entry and clearing: hidden update input, explicit clear confirmation, runtime environment precedence, and no provider/credential exception text in user-visible output.
+- Added Docker WebUI runtime smoke coverage and a submission-scope secret/placeholder scanner; current local verification reports `175 passed` and Ruff clean.
+- Added real `submission.jsonc` identity fields for student `王艺衡` (`251220127`) and the public GitHub repository URL.
+- Prepared Streamlit Community Cloud deployment with an editable `requirements.txt` install plus documented public-URL and cold-start evidence gates. Browser inspection found no authenticated Streamlit session, so no deployment, OAuth authorization, or public URL is claimed.

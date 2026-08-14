@@ -1,203 +1,116 @@
 # AI4SE Coding Agent Harness
 
-This repository contains a small, testable coding-agent harness kernel. It is designed as a course-facing project first and as a foundation for a later personal harness second.
+一个面向软件开发任务的、可确定性验证的 Coding Agent Harness。项目以 `MockLLM` 驱动完整控制循环，因此主循环、工具分发、治理护栏、反馈回灌、记忆和停机逻辑都能在离线单元测试中验证，而不依赖真实 API 或网络。
 
-The current implementation focuses on deterministic orchestration around an injected LLM, tool registry, scope guard, permission policy, human-in-the-loop request manager, feedback sensor, and JSONL trace store. Tests use `MockLLM` and neutral policy fixtures so the core behavior is reproducible without network access or real credentials.
+## 课程要求对应证据
 
-See `docs/final_status.md` for the current delivery status and `docs/personal_setup.md` for personal API setup.
+| 课程要求 | 代码与证据 |
+| --- | --- |
+| 自主实现 harness 主循环与 LLM 抽象 | `src/agent_harness/agent/loop.py`、`src/agent_harness/llm/interface.py`、`src/agent_harness/llm/mock.py`、`tests/test_loop.py` |
+| 动作/工具 | `src/agent_harness/tools/`、`tests/test_tools.py` |
+| 治理与 HITL | `src/agent_harness/governance/`、`src/agent_harness/hitl/`、`tests/test_governance_loop.py`、`tests/test_hitl*.py` |
+| 客观反馈与自我修正 | `src/agent_harness/feedback/`、`tests/test_feedback*.py` |
+| 记忆与配置 | `src/agent_harness/memory/`、`src/agent_harness/config/`、对应单元测试 |
+| 三项确定性机制演示 | `demo/demo_guardrail.py`、`demo/demo_feedback.py`、`demo/demo_scope.py` |
+| 凭据安全 | `src/agent_harness/credentials/`、`.gitignore`、`scripts/secret_scan.py` |
+| 分发与 WebUI | `Dockerfile`、`.github/workflows/test.yml`、`src/agent_harness/web/theater.py` |
 
-## What Works
+详细设计见 `SPEC.md`，实施过程见 `PLAN.md`、`SPEC_PROCESS.md` 与 `AGENT_LOG.md`。
 
-- Package import and editable install through `pyproject.toml`.
-- Deterministic agent loop with `done`, `call_tool`, and `take_note` actions.
-- Built-in tools for reading, writing, editing files, running shell commands, and running tests.
-- Runtime factory registers safe default tools: `read_file`, `read_many`, `list_files`, `search_text`, `git_diff`, `write_file`, `replace_once`, `edit_file`, and `run_test`. `run_shell` is not registered by default.
-- Tool menus include argument schemas so API-backed models can emit correct JSON action fields.
-- `done` actions can carry an `answer` field for user-facing final output.
-- OpenAI-compatible runtime has a fake-client end-to-end test covering read, write, test, trace, feedback, and `done.answer`.
-- Governance checks for workspace scope, sensitive paths, permission deny, and permission ask.
-- Human-in-the-loop request objects for ask-mode decisions.
-- Runtime config can load permission rules and create HITL requests for ask-mode tool actions.
-- HITL pending requests persist to `.harness/hitl/requests.json` and can be listed, approved, or denied through `agent-harness hitl`.
-- HITL approval can continue a paused run when the request has saved context: `agent-harness hitl approve <id> --continue`.
-- Streamlit theater can run a goal, show trace summaries, inspect step records, and approve or deny HITL requests through shared service helpers.
-- Streamlit HITL controls can approve and continue saved-context requests.
-- Streamlit sidebar can select existing JSONL traces from `.harness/runs`.
-- Optional project memory stores append-only notes under `.harness/memory/project.md`.
-- Feedback classification from tool results and feedback injection into the next loop context.
-- JSONL trace recording and loading.
-- Deterministic mechanism demos for guardrails, feedback recovery, and scope blocking.
-- YAML config loading, credential status/update/clear skeleton, plugin interfaces, and trace theater loader.
+## 已实现的能力
 
-## Known Limits
+- 自主实现的循环：上下文装配 → LLM 决策 → 动作解析 → 治理检查 → 工具分发 → 反馈回灌 → 停机判断。
+- `MockLLM`、严格 JSON action protocol，以及 OpenAI-compatible 单次调用适配层。
+- 受工作区范围约束的读写工具；默认运行时不注册 `run_shell`。
+- `PermissionPolicy`、`ScopeGuard`、持久化 HITL 请求与批准/拒绝/继续执行。
+- 对工具结果的确定性反馈分类和 JSONL trace。
+- Streamlit Agent Harness Console：运行任务、查看 trace、检查 HITL 队列和安全状态。
+- Windows Credential Manager 优先、受 Git 忽略的 `.env` 回退；凭据状态不会输出明文。
 
-- `agent-harness run`, `agent-harness demo`, and `agent-harness web` are minimal working local commands in this milestone. `run` uses the safe MockLLM runtime by default and can construct an OpenAI-compatible provider from config and credentials.
-- Real API-backed task execution uses a strict JSON action protocol and the governed runtime. The remaining product work is richer task tooling and provider-specific hardening for personal use.
-- The shell tool is intentionally conservative in governed loop execution. With scope enabled and no explicit permission policy, `run_shell` is blocked by default.
-- This is not a complete OS sandbox. Scope and permission checks are harness-level guardrails.
-- Reflection content is scaffolded only; the student should complete `REFLECTION.md` personally.
+## 已知边界
 
-## Install
+- 这是 harness 层的治理，不是操作系统级沙箱；真实项目仍应在受限工作区和最小权限环境运行。
+- 默认配置使用 `mock`。真实 OpenAI-compatible 模型需要用户在目标机器上自行安全配置 endpoint、model 与 key。
+- Dockerfile 与 CI 已配置为启动并 smoke-test WebUI；本机 Docker Desktop 当前未运行，因此本地容器启动不在本批次中声称已验证。公开部署 URL 仍需由项目所有者使用获授权的部署账号创建并验证。
+- `REFLECTION.md` 必须由学生本人完成。仓库中的说明仅提供题纲与自检标准，不是可提交的代写内容。
 
-Use Python 3.12 or newer.
+## 安装
 
-```bash
+需要 Python 3.12 或更高版本。为避免 editable 安装仍指向旧副本，在本仓库根目录创建或重新绑定虚拟环境：
+
+```powershell
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
+python -c "import agent_harness; print(agent_harness.__file__)"
 ```
 
-On Linux or macOS, activate the environment with:
+最后一条命令必须显示本仓库下的 `src\agent_harness\__init__.py`。Linux/macOS 使用 `source .venv/bin/activate`，其余命令相同。
 
-```bash
-source .venv/bin/activate
-python -m pip install -e ".[dev]"
-```
+## 验证
 
-## Verify
-
-```bash
-python -m pytest -q
-python -m ruff check src/ tests/ demo/
+```powershell
 python scripts/verify_delivery.py
-```
-
-The final sandbox verification for this recovery pass was:
-
-- `161 passed`
-- `All checks passed!`
-
-## Run Demos
-
-```bash
 python -m demo.demo_guardrail
 python -m demo.demo_feedback
 python -m demo.demo_scope
 ```
 
-The demos use `MockLLM`; they do not require an API key.
+`verify_delivery.py` 依次运行 pytest、Ruff、mock CLI run、HITL list 和 secret/占位标记扫描。它不调用真实 LLM，也不要求 API key。
 
-## CLI
+## 使用 WebUI
 
-```bash
-agent-harness --help
-agent-harness run "say done" --trace .harness/runs/latest.jsonl
-agent-harness run "say done" --profile config/personal-harness.yaml
-agent-harness demo
-agent-harness web --trace trace.jsonl
-agent-harness smoke provider --profile config/local-openai.yaml --trace .harness/runs/provider-smoke.jsonl
-agent-harness hitl list --store .harness/hitl/requests.json
-agent-harness hitl approve <request_id> --store .harness/hitl/requests.json
-agent-harness hitl approve <request_id> --continue --store .harness/hitl/requests.json
-agent-harness hitl deny <request_id> --store .harness/hitl/requests.json
-agent-harness credentials show
-agent-harness credentials update <secret>
-agent-harness credentials clear
-```
-
-Credential values are never printed. The manager tries keyring first and falls back to a local `.env` file. Do not commit `.env`; it is ignored by `.gitignore`.
-
-## API Provider Config
-
-See `docs/personal_setup.md` for the full local setup and personal API profile workflow.
-
-The default config is safe and uses `mock`:
-
-```yaml
-llm:
-  provider: mock
-  model: gpt-4
-  temperature: 0.7
-  base_url:
-```
-
-For OpenAI-compatible APIs, use:
-
-```yaml
-llm:
-  provider: openai
-  model: your-model
-  temperature: 0.2
-  base_url: https://api.openai.com/v1
-```
-
-If no key is configured, `agent-harness run --config <file>` exits safely with `API key not configured`.
-
-Use `--profile config/personal-harness.yaml` to overlay project-specific workspace, permission, model, and memory settings on top of the base config.
-
-After configuring an OpenAI-compatible profile and storing the key through the credential
-manager, run a real provider smoke check:
-
-```bash
-agent-harness smoke provider --profile config/local-openai.yaml --trace .harness/runs/provider-smoke.jsonl
-```
-
-The provider smoke check refuses `mock` profiles, confirms that credentials are configured without printing them, runs one guarded read-only goal, and verifies that a trace file was written.
-
-Model responses must be exactly one JSON object:
-
-```json
-{"type":"done","answer":"finished"}
-```
-
-```json
-{"type":"take_note","note":"remember this"}
-```
-
-```json
-{"type":"call_tool","tool":"read_file","args":{"path":"README.md"}}
-```
-
-Invalid JSON or malformed actions are fed back into the loop as an invalid-action observation.
-
-## Trace Theater
-
-Trace loading is implemented in `agent_harness.web.theater.load_trace_for_display`. Trace summary counts are available through `summarize_trace`, and the Web service helpers in `agent_harness.web.services` expose task running plus HITL list/approve/deny operations.
-
-```bash
+```powershell
 streamlit run src/agent_harness/web/theater.py
 ```
 
-The default Web inputs use `config/agent-harness.yaml`, `config/personal-harness.yaml`, `.harness/runs/latest.jsonl`, and `.harness/hitl/requests.json`. `agent-harness run` writes a JSONL trace to `.harness/runs/latest.jsonl` by default. Pass `--trace <path>` to choose a different run record.
+浏览器打开 Streamlit 输出的本地地址。默认 trace 位于 `.harness/runs/latest.jsonl`，HITL 请求位于 `.harness/hitl/requests.json`。首次运行前可先执行任一 demo 生成可回放的确定性行为。
 
-## Docker
+## 凭据与真实供应商
 
-Build and test in a container:
+默认 `config/agent-harness.yaml` 使用 `mock`。接入真实 OpenAI-compatible 服务前，先复制/维护个人 profile，再使用：
 
-```bash
-docker build -t ai4se-agent-harness .
-docker run --rm ai4se-agent-harness
+```powershell
+agent-harness credentials update
+agent-harness doctor --profile config/personal-harness.yaml
+agent-harness run "read README.md" --profile config/personal-harness.yaml
 ```
 
-## Project Structure
+key 不得写入源码、Git、日志、命令行历史或容器镜像。运行时环境中的非空 `OPENAI_API_KEY` 优先于已保存凭据，便于部署平台注入 secret；`.env` 是明文回退方案，必须保持在 `.gitignore` 中，且进程环境对同一机器上的适当权限主体可见。优先使用系统 keyring。详见 `docs/personal_setup.md`。
+
+## Docker 分发
+
+Docker 镜像默认启动 WebUI，而不是仅运行测试：
+
+```powershell
+docker build -t ai4se-agent-harness:submission .
+docker run --rm -p 8501:8501 ai4se-agent-harness:submission
+```
+
+然后访问 `http://localhost:8501`。不要通过 Dockerfile、镜像层或提交的 Compose 文件传入真实 key。若目标机使用 `.env`，可在本机受限权限下创建后以 `docker run --env-file .env --rm -p 8501:8501 ai4se-agent-harness:submission` 注入；`.env` 为明文且进程环境可见，不能提交到 Git。
+
+## CI 与提交前检查
+
+GitHub Actions 在每次 push 时运行 `unit-test`（pytest + Ruff）和 `container-build`（Docker build + 8501 HTTP smoke）。`.gitlab-ci.yml` 也保留课程要求的 `unit-test` job。最终提交前应确认：
+
+1. 最新远端 CI 为 pass；
+2. Docker WebUI 可从新镜像启动；
+3. 有真实、可访问的 HTTPS WebUI 部署 URL；
+4. `REFLECTION.md` 是本人完成的 1500–2500 字反思；
+5. `submission.jsonc` 填写真实学号、姓名、仓库 URL 和部署 URL；
+6. `git status` 干净，且 `scripts/secret_scan.py` 无发现。
+
+## 目录结构
 
 ```text
-src/agent_harness/agent/       Agent loop and harness dependency container
-src/agent_harness/governance/  Scope, permission, and HITL modules
-src/agent_harness/feedback/    Feedback classifier, sensor, and healing state
-src/agent_harness/trace/       JSONL trace store
-src/agent_harness/tools/       Tool base classes, registry, and built-ins
-src/agent_harness/config/      YAML config loader
-src/agent_harness/credentials/ Credential manager
-src/agent_harness/plugins/     Minimal plugin extension surface
-src/agent_harness/web/         Trace theater and Web service helpers
-demo/                          Deterministic mechanism demos
-tests/                         Unit and integration tests
-docs/superpowers/              Recovery design and implementation plan
+src/agent_harness/agent/       主循环与依赖容器
+src/agent_harness/governance/  Scope、权限和 HITL
+src/agent_harness/feedback/    反馈分类、传感与修正状态
+src/agent_harness/trace/       JSONL trace
+src/agent_harness/tools/       工具注册表与内置工具
+src/agent_harness/credentials/ 凭据管理
+src/agent_harness/web/         Streamlit WebUI 与服务层
+demo/                          三项确定性机制演示
+tests/                         离线单元与集成测试
+docs/superpowers/              设计、计划与提交收口记录
 ```
-
-## Distribution Command
-
-For a source distribution and wheel:
-
-```bash
-python -m pip install build
-python -m build
-```
-
-## Safety Boundaries
-
-- Tests and demos avoid real destructive command examples.
-- Sensitive path checks use neutral fixtures such as `.git` and `.env`.
-- Shell execution should be governed by explicit permission policy in any real integration.
-- API secrets should be stored through the credential manager or environment variables, never in source files.

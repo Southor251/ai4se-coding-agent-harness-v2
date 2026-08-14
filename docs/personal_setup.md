@@ -50,7 +50,13 @@ agent-harness credentials update <secret>
 agent-harness credentials show
 ```
 
-## 4. Run A Real Provider Smoke Check
+
+## 4. Check The Local Runtime
+
+```bash
+agent-harness doctor --profile config/personal-harness.yaml
+```
+## 5. Run A Real Provider Smoke Check
 
 After setting `llm.provider: openai` in a local profile and storing the key through
 `agent-harness credentials update`, run:
@@ -61,7 +67,7 @@ agent-harness smoke provider --profile config/local-openai.yaml --trace .harness
 
 The smoke command fails before calling the model if the profile still uses `mock` or if no credential is configured. It never prints the secret value.
 
-## 5. Run A Task
+## 6. Run A Task
 
 ```bash
 agent-harness run "say done" --profile config/personal-harness.yaml --trace .harness/runs/latest.jsonl
@@ -77,7 +83,7 @@ The model must return one JSON action at a time:
 {"type":"done","answer":"finished"}
 ```
 
-## 6. Handle HITL Requests
+## 7. Handle HITL Requests
 
 List pending requests:
 
@@ -103,7 +109,7 @@ Deny without executing:
 agent-harness hitl deny <request_id> --store .harness/hitl/requests.json
 ```
 
-## 7. Use The Web Console
+## 8. Use The Web Console
 
 ```bash
 streamlit run src/agent_harness/web/theater.py

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,9 @@ class CredentialManager:
         self.env_file = Path(env_file)
 
     def get(self) -> str | None:
+        runtime_value = os.environ.get("OPENAI_API_KEY")
+        if runtime_value:
+            return runtime_value
         try:
             value = self.backend.get_password(self.service, self.username)
             if value:
