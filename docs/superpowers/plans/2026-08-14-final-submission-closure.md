@@ -26,25 +26,25 @@
 
 - [x] Verify JSONC identity fields with a comment-line-aware parser.
 - [x] Run `python scripts/secret_scan.py submission.jsonc`; expected exit code `0`.
-- [x] Run `.\\.venv\\Scripts\\python.exe scripts\\verify_delivery.py`; expected `175 passed`, `All checks passed!`, exit code `0`.
+- [x] Run `.\\.venv\\Scripts\\python.exe scripts\\verify_delivery.py`; expected `185 passed`, `All checks passed!`, exit code `0`.
 
 ### Task 2: Publish the reviewed repository state
 
 **Files:**
 - Modify: Git history and pull request metadata only
 
-- [ ] Verify the latest PR checks pass.
-- [ ] Mark the draft PR ready and merge it into `main` with a merge commit, preserving the review trail.
-- [ ] Verify the new `main` workflow has passed.
+- [x] Verify the latest PR checks pass (unit-test and container-build).
+- [x] Mark the draft PR ready and merge it into main with merge commit 99cfa9e, preserving the review trail.
+- [x] Verify the new main workflow has passed (unit-test and container-build).
 
 ### Task 3: Create a stable distribution reference
 
 **Files:**
 - Modify: GitHub Release metadata only
 
-- [ ] Create annotated release `v1.0.0-course-submission` from the verified `main` commit.
-- [ ] Verify the release URL resolves and refers to the expected commit.
-- [ ] Update `submission.jsonc` only if the course confirms a Release URL is accepted in lieu of public WebUI deployment; otherwise retain truthful `is_deployed: false`.
+- [x] Create annotated release v1.0.0-course-submission from verified main commit 99cfa9e.
+- [x] Verify the release URL returns HTTP 200 and refers to commit 99cfa9e.
+- [x] Record the verified Release URL in submission.jsonc while retaining truthful is_deployed: false; this does not replace the separate public-WebUI requirement.
 
 ### Task 4: Prepare the two non-repository evidence gates
 
@@ -52,9 +52,9 @@
 - Create: `docs/final_submission_external_gates.md`
 - Modify: `docs/final_status.md`, `README.md`
 
-- [ ] Document a precise deployment handoff for a Streamlit-capable platform: repository, Dockerfile, port `8501`, health URL, and secret policy.
-- [ ] Document a cold-start handoff: an independent agent/session receives only `SPEC.md` and `PLAN.md`, asks questions, makes a minimal change, and records diffs and verification.
-- [ ] State the gates as incomplete until actual external evidence exists; do not downgrade them to repository links.
+- [x] Document a precise deployment handoff for a Streamlit-capable platform: repository, Dockerfile, port 8501, health URL, and secret policy.
+- [x] Document a cold-start handoff: an independent agent/session receives only SPEC.md and PLAN.md, asks questions, makes a minimal change, and records diffs and verification.
+- [x] State the gates as incomplete until actual external evidence exists; do not downgrade them to repository links.
 
 ### Task 5: Final pre-submission audit
 

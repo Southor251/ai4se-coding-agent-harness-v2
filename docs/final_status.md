@@ -2,7 +2,7 @@
 
 ## Verified repository evidence — 2026-08-14
 
-From this checkout, `python scripts/verify_delivery.py` completed successfully with `175 passed`, Ruff reporting `All checks passed!`, a mock CLI run, a HITL-list smoke check, and the submission-scope secret/placeholder scan. GitHub Actions for the latest submission branch commit passed both `unit-test` and `container-build`; the container job builds the image, starts the Streamlit WebUI, and performs an HTTP probe on port 8501.
+From this checkout, `python scripts/verify_delivery.py` completed successfully with `185 passed`, Ruff reporting `All checks passed!`, a mock CLI run, a HITL-list smoke check, and the submission-scope secret/placeholder scan. GitHub Actions for merged main commit 99cfa9e passed both unit-test and container-build; the container job builds the image, starts the Streamlit WebUI, and performs an HTTP probe on port 8501.
 
 The three deterministic mechanism demonstrations remain under `demo/`: governance denial, feedback healing, and scope denial. They use `MockLLM` and do not require network access or a real credential.
 
@@ -11,7 +11,7 @@ The three deterministic mechanism demonstrations remain under `demo/`: governanc
 - `Dockerfile` starts the Streamlit WebUI on port 8501.
 - Root `requirements.txt` installs this project for Streamlit Community Cloud, allowing the entrypoint `src/agent_harness/web/theater.py` to import the `src` package layout.
 - GitHub Actions has `unit-test` and `container-build`; `.gitlab-ci.yml` retains the course-required `unit-test` job.
-- `submission.jsonc` contains the supplied student identity and public GitHub repository URL. It truthfully remains `is_deployed: false` until an actual public WebUI URL exists.
+- `submission.jsonc` contains the supplied student identity, public GitHub repository URL, and the verified public Release URL v1.0.0-course-submission. It truthfully remains `is_deployed: false` until an actual public WebUI URL exists.
 - Credentials use hidden input and safe precedence. User-visible provider, credential-backend, and runtime-assembly failures are redacted. The scanner produces Windows-console-safe output.
 
 ## Remaining evidence gates not representable by repository edits

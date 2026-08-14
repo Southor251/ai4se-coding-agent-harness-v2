@@ -210,3 +210,9 @@ Observed result:
 - Added `docs/final_submission_external_gates.md` with the exact Streamlit Community Cloud deployment inputs, non-admin URL acceptance test, and an honest independent-agent cold-start protocol.
 - Updated README and final status to distinguish verified repository evidence from the still-unperformed public deployment and heterogeneous cold-start exercise.
 - Checked Streamlit Community Cloud in a browser: no authenticated session was available, so no deployment, OAuth authorization, or public URL is claimed.
+
+## Course Release publication — 2026-08-14
+
+- Merged the submission-readiness PR into main as 99cfa9e after unit-test and Streamlit container startup smoke checks passed.
+- Created and verified public GitHub Release v1.0.0-course-submission at https://github.com/Southor251/ai4se-coding-agent-harness-v2/releases/tag/v1.0.0-course-submission; it returns HTTP 200 and targets 99cfa9e.
+- Updated submission.jsonc to use that actual Release URL while retaining is_deployed: false. This stable source snapshot does not claim to satisfy the separate public-WebUI deployment requirement.
